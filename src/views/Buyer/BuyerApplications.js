@@ -1,9 +1,11 @@
 import React from "react";
-import LeftMenu from "../components/LeftMenu.js";
-import MiddleList from "../components/MiddleList.js";
-import RightContents from "../components/RightContents.js";
-import firebase from "../firebaseConfig";
-import * as constant from "../Constant.js";
+import LeftMenu from "../../components/LeftMenu.js";
+import MiddleList from "../../components/MiddleList.js";
+import RightContents from "../../components/RightContents.js";
+import firebase from "../../firebaseConfig";
+import * as constant from "../../Constant.js";
+import * as common from "../../Common.js";
+
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import AppBar from "@material-ui/core/AppBar";
@@ -12,6 +14,10 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import { withRouter } from "react-router-dom";
+
+import ContentExplain from "../../components/ContentExplain";
+import Contents from "../../components/Contents";
+import AdminTextField from "../../components/AdminTextField";
 
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -113,32 +119,7 @@ export default function BuyerApplications(props) {
           flexWrap: "wrap"
         }}
       >
-        <LeftMenu>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center"
-            }}
-          >
-            <Link
-              href="#"
-              onClick={() => {
-                props.history.push("/");
-              }}
-            >
-              구매자 신청서
-            </Link>
-            <Link
-              href="#"
-              onClick={() => {
-                props.history.push("/station");
-              }}
-            >
-              스테이션
-            </Link>
-          </div>
-        </LeftMenu>
+        <LeftMenu />
 
         <MiddleList>
           {applications &&
@@ -163,6 +144,8 @@ export default function BuyerApplications(props) {
             })}
         </MiddleList>
         <RightContents>
+          <ContentExplain title="구매자의 입금을 확인합니다" />
+
           <>
             <div
               style={{
@@ -189,19 +172,22 @@ export default function BuyerApplications(props) {
                   color="primary"
                   onClick={async () => {
                     try {
+                      //TODO
+                      const today = String(new Date());
+
                       await db
                         .collection(constant.application.buyerApplication)
                         .doc(application.id)
                         .update({
+                          approvedBy: today,
                           status: constant.applicationStatus.approved
                         });
 
                       //여기에서 스테이션으로
                       //모디파이 데이터 할꺼 정리
-                      const today = new Date();
                       for (let i = 0; i < application.data.amount; i++) {
                         let modifyData = application.data;
-                        modifyData.confirmedBy = today;
+                        modifyData.approvedBy = today;
                         await db.collection("Stations").doc().set(modifyData);
                       }
 
@@ -212,7 +198,94 @@ export default function BuyerApplications(props) {
                     }
                   }}
                 >
-                  승인
+                  승인 및 스테이션 수동할당
+                </Button>
+              )}
+
+              {application && (
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={async () => {
+                    try {
+                      const today = String(new Date());
+                      const preStations = await common.getPrestations();
+
+                      if (preStations.length === 0) {
+                        alert("예비스테이션이 0대 입니다");
+                        return;
+                      }
+                      if (preStations.length < application.data.amount) {
+                        alert(
+                          `예비스테이션이 ${
+                            application.data.amount - preStations.length
+                          }대 부족합니다`
+                        );
+                        return;
+                      }
+                      console.log("preStations", preStations);
+
+                      await db
+                        .collection(constant.application.buyerApplication)
+                        .doc(application.id)
+                        .update({
+                          approvedBy: today,
+                          status: constant.applicationStatus.approved
+                        });
+
+                      //여기에서 스테이션으로
+                      //모디파이 데이터 할꺼 정리
+                      for (let i = 0; i < application.data.amount; i++) {
+                        let modifyData = application.data;
+                        modifyData.approvedBy = today;
+                        let popedStation = preStations.pop();
+                        console.log(popedStation.id);
+                        modifyData.stationId = popedStation.data.stationId;
+                        await db
+                          .collection("Prestations")
+                          .doc(popedStation.id)
+                          .delete();
+                        await db.collection("Stations").doc().set(modifyData);
+                      }
+
+                      await reloadApplications();
+                      alert("완료");
+                    } catch (e) {
+                      alert(e);
+                    }
+                  }}
+                >
+                  승인 및 스테이션 자동할당
+                </Button>
+              )}
+
+              {application && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={async () => {
+                    const confirm = window.confirm(
+                      `${application.id}를 삭제 하시겠습니까`
+                    );
+
+                    if (!confirm) {
+                      return;
+                    }
+
+                    try {
+                      await db
+                        .collection(constant.dbCollection.buyerApplication)
+                        .doc(application.id)
+                        .delete();
+
+                      await reloadApplications();
+                      alert("완료");
+                    } catch (e) {
+                      alert(e);
+                    }
+                  }}
+                >
+                  삭제
                 </Button>
               )}
             </div>

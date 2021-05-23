@@ -344,7 +344,15 @@ export default function BuyerApplications(props) {
                         return;
                       }
                       try {
-                        const today = new Date();
+                        const today = String(new Date());
+
+                        await db
+                          .collection(constant.application.buyerApplication)
+                          .doc(application.id)
+                          .update({
+                            approvedBy: today,
+                            status: constant.applicationStatus.approved
+                          });
 
                         await db
                           .collection("Stations")

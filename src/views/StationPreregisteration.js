@@ -58,6 +58,10 @@ export default function PreStations(props) {
 
   // 스테이션하고 프리스테이션에 같은 스테이션 아이디 존재하는지확인
 
+  const clearValue = () => {
+    setValue(null);
+  };
+
   const handleChange = (event) => {
     setValue(event.target.value);
   };
@@ -67,12 +71,13 @@ export default function PreStations(props) {
       .where("stationId", "!=", "");
     const qs = await ref.get();
     const result = qs.docs.map((doc) => {
-      console.log(doc.data());
-      console.log(doc.id);
+      // console.log(doc.data());
+      // console.log(doc.id);
       return { id: doc.id, data: doc.data() };
     });
     setApplications(result);
     setApplication(null);
+    clearValue();
   };
   React.useEffect(() => {
     (async () => {
@@ -88,6 +93,7 @@ export default function PreStations(props) {
       setApplications(result);
     })();
   }, []);
+  // React.useEffect(() => {}, [value]);
 
   const registerBody = (
     <Contents>
@@ -108,6 +114,16 @@ export default function PreStations(props) {
           variant="outlined"
           color="primary"
           onClick={async () => {
+            //스테이션에 있는지
+            const isStation = await common.findStation(value);
+            const isPrestation = await common.findPreStation(value);
+            console.log("이스 스테이션", isPrestation);
+            if (isPrestation.data !== null) {
+              alert("등록된 스테이션입니다");
+              clearValue();
+              return;
+            }
+
             const today = new Date();
             if (!!!value) {
               alert("스테이션 아이디를 입력하세요");
@@ -115,12 +131,11 @@ export default function PreStations(props) {
             }
             try {
               await db.collection(constant.dbCollection.prestation).add({
-                registerBy: today,
+                registerBy: String(today),
                 stationId: value
               });
-              setValue(null);
               await reloadApplications();
-
+              clearValue();
               alert("등록 완료");
             } catch (e) {
               alert(e);
@@ -151,7 +166,7 @@ export default function PreStations(props) {
           <span>
             스테이션 아이디: {application && application.data.stationId}
           </span>
-          <span>등록날짜: {application && application.data.registeredBy}</span>
+          <span>등록날짜: {application && application.data.registerBy}</span>
 
           {application && (
             <>
@@ -242,11 +257,11 @@ export default function PreStations(props) {
                       elevation={3}
                       style={{ marginTop: "10px" }}
                       onClick={() => {
-                        console.log(value);
+                        // console.log(value);
                         setApplication(value);
                       }}
                     >
-                      <span> {value.id}</span>
+                      <span> {value.data.stationId}</span>
                     </Paper>
                   </Grid>
                 </>

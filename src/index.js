@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import BuyerApplications from "./views/BuyerApplications.js";
+import BuyerApplications from "./views/Buyer/BuyerApplications.js";
 import SalesApplications from "./views/SalesApplications.js";
 import StationNeedToSend from "./views/StationNeedToSend.js";
 import StationPreregisteration from "./views/StationPreregisteration";
