@@ -2,6 +2,10 @@ import React from "react";
 import LeftMenu from "../components/LeftMenu.js";
 import MiddleList from "../components/MiddleList.js";
 import RightContents from "../components/RightContents.js";
+import ContentExplain from "../components/ContentExplain";
+import Contents from "../components/Contents";
+import AdminTextField from "../components/AdminTextField";
+
 import firebase from "../firebaseConfig";
 import * as constant from "../Constant.js";
 import Paper from "@material-ui/core/Paper";
@@ -17,7 +21,6 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-
 let db = firebase.firestore();
 
 const useStyles = makeStyles((theme) => ({
@@ -51,12 +54,17 @@ export default function PreStations(props) {
   const [spacing, setSpacing] = React.useState(0);
   const [applications, setApplications] = React.useState([]);
   const [application, setApplication] = React.useState(null);
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(null);
 
+  // 스테이션하고 프리스테이션에 같은 스테이션 아이디 존재하는지확인
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
   const reloadApplications = async () => {
     const ref = db
-      .collection(constant.application.salesApplication)
-      .where("status", "==", constant.applicationStatus.waiting);
+      .collection(constant.dbCollection.prestation)
+      .where("stationId", "!=", "");
     const qs = await ref.get();
     const result = qs.docs.map((doc) => {
       console.log(doc.data());
@@ -69,8 +77,8 @@ export default function PreStations(props) {
   React.useEffect(() => {
     (async () => {
       const ref = db
-        .collection(constant.application.salesApplication)
-        .where("status", "==", constant.applicationStatus.waiting);
+        .collection(constant.dbCollection.prestation)
+        .where("stationId", "!=", "");
       const qs = await ref.get();
       const result = qs.docs.map((doc) => {
         console.log(doc.data());
@@ -79,8 +87,118 @@ export default function PreStations(props) {
       });
       setApplications(result);
     })();
-    console.log("어플리케이션스", applications);
   }, []);
+
+  const registerBody = (
+    <Contents>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "left",
+          justifyContent: "space-between",
+          width: "100%",
+          height: "100%"
+        }}
+      >
+        <span>스테이션 아이디 입력</span>
+
+        <AdminTextField value={value} onChange={handleChange} />
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={async () => {
+            const today = new Date();
+            if (!!!value) {
+              alert("스테이션 아이디를 입력하세요");
+              return;
+            }
+            try {
+              await db.collection(constant.dbCollection.prestation).add({
+                registerBy: today,
+                stationId: value
+              });
+              setValue(null);
+              await reloadApplications();
+
+              alert("등록 완료");
+            } catch (e) {
+              alert(e);
+            }
+          }}
+        >
+          등록
+        </Button>
+      </div>
+    </Contents>
+  );
+  const contentsBody = (
+    <>
+      {" "}
+      <Contents>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "left",
+            justifyContent: "space-between",
+            width: "100%",
+            height: "100%"
+          }}
+        >
+          <span>디비 아이디:{application && application.id}</span>
+
+          <span>
+            스테이션 아이디: {application && application.data.stationId}
+          </span>
+          <span>등록날짜: {application && application.data.registeredBy}</span>
+
+          {application && (
+            <>
+              <div style={{ alignSelf: "center", marginTop: "40px" }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={async () => {
+                    const confirmed = window.confirm(
+                      `${application.data.stationId} 스테이션을 삭제 하시겠습니까`
+                    );
+                    if (!confirmed) {
+                      return;
+                    }
+
+                    try {
+                      await db
+                        .collection(constant.dbCollection.prestation)
+                        .doc(application.id)
+                        .delete();
+
+                      await reloadApplications();
+                      alert("완료");
+                    } catch (e) {
+                      alert(e);
+                    }
+                  }}
+                >
+                  삭제
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </Contents>
+      <Button
+        variant="outlined"
+        color="primary"
+        stlye={{ marginTop: "40px" }}
+        onClick={async () => {
+          setApplication(null);
+        }}
+      >
+        스테이션 새로 등록하기
+      </Button>
+    </>
+  );
 
   // React.useEffect(() => {}, [applications]);
   return (
@@ -137,6 +255,8 @@ export default function PreStations(props) {
         </MiddleList>
         <RightContents>
           <>
+            <ContentExplain title="반토가 보유한 스테이션을 등록합니다" />
+
             <div
               style={{
                 display: "flex",
@@ -144,122 +264,7 @@ export default function PreStations(props) {
                 alignItems: "center"
               }}
             >
-              <span>{application && application.id}</span>
-              <span>가맹점: {application && application.data.storeName}</span>
-              <span>
-                가맹점 주소: {application && application.data.storeMainAddress}
-              </span>
-              <span>
-                가맹점 나머지주소:{" "}
-                {application && application.data.storeRestAddress}
-              </span>
-              <span>
-                가맹점 전화번호:{" "}
-                {application && application.data.storePhoneNumber}
-              </span>
-              <span>
-                세일즈 수익: {application && application.data.storePortion}
-              </span>
-              <span>
-                세일즈ID: {application && application.data.salesManager}
-              </span>
-
-              <span>
-                가맹점주님ID: {application && application.data.storeOwner}
-              </span>
-              <span>
-                가맹점주님 전화번호:{" "}
-                {application && application.data.storeOwnerPhoneNumber}
-              </span>
-
-              <span>
-                스테이션 아이디: {application && application.data.stationId}
-              </span>
-
-              {application && (
-                <>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={async () => {
-                      try {
-                        await db
-                          .collection(constant.application.salesApplication)
-                          .doc(application.id)
-                          .update({
-                            status: constant.applicationStatus.approved
-                          });
-
-                        //여기에서 프렌차이즈로 저장
-                        //모디파이 데이터 할꺼 정리
-                        const today = new Date();
-                        const franchiseId = common.shuffleId(20);
-                        let modifyData = application.data;
-                        modifyData.confirmedBy = today;
-                        await db
-                          .collection(constant.dbCollection.franchise)
-                          .doc(franchiseId)
-                          .set(modifyData);
-
-                        //스테이션 업데이트 시키기
-                        await db
-                          .collection(constant.dbCollection.station)
-                          .doc(application.data.stationDoc)
-                          .update({
-                            franchiseDoc: franchiseId,
-                            bReserved: true,
-                            bNeedToSend: true,
-                            bNeedToRetrieve: false,
-                            retrievingAskedBy: "",
-                            salesManager: application.data.salesManager,
-                            salesPortion: application.data.salesPortion,
-                            storeOwner: application.data.storeOwner,
-                            storePortion: application.data.storePortion,
-                            storeBonusPortion:
-                              application.data.storeBonusPortion,
-                            registeredBy: today
-                          });
-
-                        await reloadApplications();
-                        alert("완료");
-                      } catch (e) {
-                        alert(e);
-                      }
-                    }}
-                  >
-                    승인
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={async () => {
-                      try {
-                        await db
-                          .collection(constant.application.salesApplication)
-                          .doc(application.id)
-                          .update({
-                            status: constant.applicationStatus.rejected
-                          });
-
-                        //스테이션 업데이트 시키기
-                        await db
-                          .collection(constant.dbCollection.station)
-                          .doc(application.data.stationDoc)
-                          .update({
-                            bReserved: false
-                          });
-
-                        await reloadApplications();
-                        alert("완료");
-                      } catch (e) {
-                        alert(e);
-                      }
-                    }}
-                  >
-                    거절
-                  </Button>
-                </>
-              )}
+              {application ? contentsBody : registerBody}
             </div>
           </>
         </RightContents>

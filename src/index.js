@@ -14,15 +14,15 @@ ReactDOM.render(
   <StrictMode>
     <BrowserRouter>
       <Switch>
+        <Route
+          exact
+          path="/stationpreregisteration"
+          component={StationPreregisteration}
+        />
         <Route exact path="/" component={BuyerApplications} />
         <Route exact path="/station" component={Station} />
         <Route exact path="/salesapplications" component={SalesApplications} />
         <Route exact path="/stationneedtosend" component={StationNeedToSend} />
-        <Route
-          exact
-          path="/stationpreregisteration"
-          component={StationNeedToSend}
-        />
       </Switch>
     </BrowserRouter>
     ,
