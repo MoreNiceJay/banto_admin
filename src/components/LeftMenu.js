@@ -144,20 +144,31 @@ function LeftMenu(props) {
         >
           <StyledTreeItem
             nodeId="1"
-            labelText="구매자 신청서"
+            labelText="반토 예비 스테이션 등록"
             labelIcon={MailIcon}
             onClick={() => {
-              props.history.push("/");
+              props.history.push("/stationpreregisteration");
             }}
           />
-          <StyledTreeItem
-            nodeId="2"
-            labelText="스테이션"
-            labelIcon={DeleteIcon}
-            onClick={() => {
-              props.history.push("/station");
-            }}
-          />
+
+          <StyledTreeItem nodeId="3" labelText="구매자" labelIcon={Label}>
+            <StyledTreeItem
+              nodeId="1"
+              labelText="구매자 신청서 입금 확인"
+              labelIcon={MailIcon}
+              onClick={() => {
+                props.history.push("/");
+              }}
+            />
+            <StyledTreeItem
+              nodeId="2"
+              labelText="구매자에게 스테이션 할당"
+              labelIcon={DeleteIcon}
+              onClick={() => {
+                props.history.push("/station");
+              }}
+            />
+          </StyledTreeItem>
           <StyledTreeItem nodeId="3" labelText="Categories" labelIcon={Label}>
             <StyledTreeItem
               nodeId="5"

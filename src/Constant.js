@@ -6,6 +6,7 @@ export const application = Object.freeze({
   storeApplication: "StoreApplications"
 });
 export const dbCollection = Object.freeze({
+  prestation: "Prestations",
   station: "Stations",
   franchise: "Franchises",
   buyerApplication: "BuyerApplications",

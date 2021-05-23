@@ -55,7 +55,7 @@ export default function BuyerApplications(props) {
 
   const reloadApplications = async () => {
     const ref = db
-      .collection(constant.appication.buyerApplication)
+      .collection(constant.application.buyerApplication)
       .where("status", "!=", constant.applicationStatus.approved);
     const qs = await ref.get();
     const result = qs.docs.map((doc) => {
@@ -68,6 +68,8 @@ export default function BuyerApplications(props) {
   };
   React.useEffect(() => {
     (async () => {
+      console.log("하이", constant.application.buyerApplication);
+
       const ref = db
         .collection(constant.application.buyerApplication)
         .where("status", "!=", constant.applicationStatus.approved);
@@ -188,7 +190,7 @@ export default function BuyerApplications(props) {
                   onClick={async () => {
                     try {
                       await db
-                        .collection(constant.appication.buyerApplication)
+                        .collection(constant.application.buyerApplication)
                         .doc(application.id)
                         .update({
                           status: constant.applicationStatus.approved
