@@ -1,9 +1,13 @@
 import React from "react";
-import LeftMenu from "../components/LeftMenu.js";
-import MiddleList from "../components/MiddleList.js";
-import RightContents from "../components/RightContents.js";
-import firebase from "../firebaseConfig";
-import * as constant from "../Constant.js";
+import LeftMenu from "../../components/LeftMenu.js";
+import MiddleList from "../../components/MiddleList.js";
+import RightContents from "../../components/RightContents.js";
+import ContentExplain from "../../components/ContentExplain";
+import Contents from "../../components/Contents";
+import AdminTextField from "../../components/AdminTextField";
+
+import firebase from "../../firebaseConfig";
+import * as constant from "../../Constant.js";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import AppBar from "@material-ui/core/AppBar";
@@ -150,7 +154,7 @@ const useTreeItemStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function BuyerApplications(props) {
+export default function StationNeedToSend(props) {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -158,6 +162,11 @@ export default function BuyerApplications(props) {
   const [applications, setApplications] = React.useState([]);
   const [application, setApplication] = React.useState(null);
   const [stationNumber, setStationNumber] = React.useState("");
+  const [value, setValue] = React.useState("");
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
 
   const reloadApplications = async () => {
     const ref = db
@@ -293,82 +302,129 @@ export default function BuyerApplications(props) {
         </MiddleList>
         <RightContents>
           <>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center"
-              }}
-            >
-              <span>{application && application.id}</span>
-              <span>구매자ID: {application && application.data.buyer}</span>
+            <ContentExplain title="구매자의 입금을 확인합니다" />
+            <Contents>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center"
+                }}
+              >
+                <span>{application && application.id}</span>
+                <span>
+                  신청날짜: {application && application.data.createdBy}
+                </span>
 
-              <span>수량: {application && application.data.amount}</span>
-              <span>금액: {application && application.data.totalPrice}</span>
-              <span>은행: {application && application.data.bank}</span>
-              <span>
-                계좌번호: {application && application.data.bankAccount}
-              </span>
-              <span>입금자: {application && application.data.depositor}</span>
-              <span>
-                영업방법: {application && application.data.salesMethod}
-              </span>
-              <span>
-                영업자수익: {application && application.data.salesPortion}
-              </span>
-              {/* <span>
+                <span>
+                  영업ID: {application && application.data.salesManager}
+                </span>
+                <span>
+                  영업 수익률: {application && application.data.salesPortion}
+                </span>
+
+                <span>
+                  스테이션 ID: {application && application.data.stationId}
+                </span>
+
+                <span>
+                  가맹점주 아이디: {application && application.data.storeOwner}
+                </span>
+                <span>
+                  가맹점 총 포션:{" "}
+                  {application &&
+                    application.data.storePortion +
+                      application.data.storeBonusPortion}
+                </span>
+                <span>
+                  (가맹점 포션: {application && application.data.storePortion})
+                </span>
+                <span>
+                  (가맹점 보너스 포션:{" "}
+                  {application && application.data.storeBonusPortion})
+                </span>
+
+                <span>
+                  가맹점 보너스 포션:{" "}
+                  {application && application.data.storeBonusPortion}
+                </span>
+                <span>
+                  가맹점 이름: {application && application.data.storeName}
+                </span>
+
+                <span>
+                  가맹점주 휴대전화:{" "}
+                  {application && application.data.storeOwnerPhoneNumber}
+                </span>
+                <span>
+                  가맹점 전화:{" "}
+                  {application && application.data.storePhoneNumber}
+                </span>
+                <span>
+                  가게 주소:{" "}
+                  {application &&
+                    application.data.storeMainAddress +
+                      " " +
+                      application.data.storeRestAddress}
+                </span>
+                <span>
+                  계약 연도: {application && application.data.contractYear}
+                </span>
+
+                <span>구매자ID: {application && application.data.buyer}</span>
+                <span>
+                  구매자 수익률: {application && application.data.buyerPortion}
+                </span>
+
+                {/* <span>
                 지정영업인: {application && application.data.preSalesManagers}
               </span> */}
-              {application && (
-                <>
-                  <form className={classes.root} noValidate autoComplete="off">
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {" "}
-                      <span>스테이션번호 입력</span>
-                      <TextField
-                        id="outlined-basic"
-                        variant="outlined"
-                        value={stationNumber}
-                        onChange={(e) => {
-                          setStationNumber(e.target.value);
-                        }}
-                      />
-                    </div>
-                  </form>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={async () => {
-                      if (stationNumber === "") {
-                        alert("스테이션 번호를 입력해 주세요");
-                        return;
-                      }
-                      try {
-                        const today = new Date();
+                {application && (
+                  <>
+                    <form
+                      className={classes.root}
+                      noValidate
+                      autoComplete="off"
+                    >
+                      <span>송장번호 입력</span>
 
-                        await db
-                          .collection("Stations")
-                          .doc(application.id)
-                          .update({
-                            status: constant.applicationStatus.approved,
-                            stationId: stationNumber
-                          });
+                      <AdminTextField value={value} onChange={handleChange} />
+                    </form>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={async () => {
+                        try {
+                          const today = new Date();
+                          if (!!!value) {
+                            alert("송장번호를 입력해주세요");
+                            return;
+                          }
+                          await db
+                            .collection("Stations")
+                            .doc(application.id)
+                            .update({
+                              bNeedToSend: true,
+                              postCode: value
+                            });
 
-                        //여기에서 스테이션으로
-                        //모디파이 데이터 할꺼 정리
-                        setStationNumber("");
-                        await reloadApplications();
-                        alert("완료");
-                      } catch (e) {
-                        alert(e);
-                      }
-                    }}
-                  >
-                    스테이션 번호 저장
-                  </Button>
-                </>
-              )}
-            </div>
+                          //여기에서 스테이션으로
+                          //모디파이 데이터 할꺼 정리
+                          setApplication("");
+                          setValue("");
+                          await reloadApplications();
+                          alert("완료");
+                        } catch (e) {
+                          alert(e);
+                        }
+                      }}
+                    >
+                      스테이션 발송 완료
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Contents>
           </>
         </RightContents>
       </div>

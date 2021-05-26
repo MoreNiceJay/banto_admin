@@ -1,9 +1,12 @@
 import React from "react";
-import LeftMenu from "../components/LeftMenu.js";
-import MiddleList from "../components/MiddleList.js";
-import RightContents from "../components/RightContents.js";
-import firebase from "../firebaseConfig";
-import * as constant from "../Constant.js";
+import LeftMenu from "../../components/LeftMenu.js";
+import MiddleList from "../../components/MiddleList.js";
+import RightContents from "../../components/RightContents.js";
+import ContentExplain from "../../components/ContentExplain";
+
+import firebase from "../../firebaseConfig";
+import * as constant from "../../Constant.js";
+
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import AppBar from "@material-ui/core/AppBar";
@@ -293,6 +296,8 @@ export default function BuyerApplications(props) {
         </MiddleList>
         <RightContents>
           <>
+            <ContentExplain title="반토가 보유한 수동으로 스테이션을 등록합니다" />
+
             <div
               style={{
                 display: "flex",

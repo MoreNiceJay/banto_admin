@@ -118,7 +118,7 @@ export default function PreStations(props) {
             const isStation = await common.findStation(value);
             const isPrestation = await common.findPreStation(value);
             console.log("이스 스테이션", isPrestation);
-            if (isPrestation.data !== null) {
+            if (isPrestation.data !== null || isStation.data !== null) {
               alert("등록된 스테이션입니다");
               clearValue();
               return;
