@@ -169,18 +169,28 @@ export default function StationNeedToSend(props) {
   };
 
   const reloadApplications = async () => {
-    const ref = db
-      .collection("Stations")
-      .where("status", "!=", constant.applicationStatus.approved)
-      .where("stationId", "==", "");
-    const qs = await ref.get();
-    const result = qs.docs.map((doc) => {
-      console.log(doc.data());
-      console.log(doc.id);
-      return { id: doc.id, data: doc.data() };
-    });
-    setApplications(result);
-    setApplication(null);
+    (async () => {
+      const ref = db
+        .collection("Stations")
+
+        .where("bNeedToSend", "==", true);
+      const qs = await ref.get();
+      const result = await Promise.all(
+        qs.docs.map(async (doc) => {
+          console.log(doc.data());
+          console.log(doc.id);
+          const franchiseResult = await db
+            .collection("Franchises")
+            .doc(doc.data().franchiseDoc)
+            .get();
+          const franchiseData = franchiseResult.data();
+
+          return { id: doc.id, data: doc.data(), franchise: franchiseData };
+        })
+      );
+      setApplication(null);
+      setApplications(result);
+    })();
   };
   function StyledTreeItem(props) {
     const classes = useTreeItemStyles();
@@ -237,11 +247,18 @@ export default function StationNeedToSend(props) {
 
         .where("bNeedToSend", "==", true);
       const qs = await ref.get();
-      const result = qs.docs.map((doc) => {
-        console.log(doc.data());
-        console.log(doc.id);
-        return { id: doc.id, data: doc.data() };
-      });
+      const result = await Promise.all(
+        qs.docs.map(async (doc) => {
+          const franchiseResult = await db
+            .collection("Franchises")
+            .doc(doc.data().franchiseDoc)
+            .get();
+          const franchiseData = franchiseResult.data();
+
+          return { id: doc.id, data: doc.data(), franchise: franchiseData };
+        })
+      );
+
       setApplications(result);
     })();
     console.log("어플리케이션스", applications);
@@ -315,6 +332,10 @@ export default function StationNeedToSend(props) {
                 <span>
                   신청날짜: {application && application.data.createdBy}
                 </span>
+                <span>
+                  가게 이름: {application && application.franchise.storeName}
+                  {console.log(application && application.data)}
+                </span>
 
                 <span>
                   영업ID: {application && application.data.salesManager}
@@ -339,36 +360,32 @@ export default function StationNeedToSend(props) {
                 <span>
                   (가맹점 포션: {application && application.data.storePortion})
                 </span>
-                <span>
-                  (가맹점 보너스 포션:{" "}
-                  {application && application.data.storeBonusPortion})
-                </span>
 
                 <span>
                   가맹점 보너스 포션:{" "}
-                  {application && application.data.storeBonusPortion}
+                  {application && application.franchise.storeBonusPortion}
                 </span>
                 <span>
-                  가맹점 이름: {application && application.data.storeName}
+                  가맹점 이름: {application && application.franchise.storeName}
                 </span>
 
                 <span>
                   가맹점주 휴대전화:{" "}
-                  {application && application.data.storeOwnerPhoneNumber}
+                  {application && application.franchise.storeOwnerPhoneNumber}
                 </span>
                 <span>
                   가맹점 전화:{" "}
-                  {application && application.data.storePhoneNumber}
+                  {application && application.franchise.storePhoneNumber}
                 </span>
                 <span>
                   가게 주소:{" "}
                   {application &&
-                    application.data.storeMainAddress +
+                    application.franchise.storeMainAddress +
                       " " +
-                      application.data.storeRestAddress}
+                      application.franchise.storeRestAddress}
                 </span>
                 <span>
-                  계약 연도: {application && application.data.contractYear}
+                  계약 연도: {application && application.franchise.contractYear}
                 </span>
 
                 <span>구매자ID: {application && application.data.buyer}</span>

@@ -11,8 +11,9 @@ import ForumIcon from "@material-ui/icons/Forum";
 import LocalOfferIcon from "@material-ui/icons/LocalOffer";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
-import PropTypes from "prop-types";
 import TreeView from "@material-ui/lab/TreeView";
+
+import PropTypes from "prop-types";
 
 import { withRouter } from "react-router-dom";
 
@@ -137,39 +138,50 @@ function LeftMenu(props) {
       >
         <TreeView
           className={classes.root}
-          defaultExpanded={["3"]}
+          defaultExpanded={["22", "33"]}
           defaultCollapseIcon={<ArrowDropDownIcon />}
           defaultExpandIcon={<ArrowRightIcon />}
           defaultEndIcon={<div style={{ width: 24 }} />}
         >
           <StyledTreeItem
-            nodeId="1"
+            nodeId="1111"
             labelText="반토 예비 스테이션 등록"
             labelIcon={MailIcon}
             onClick={() => {
-              props.history.push("/stationpreregisteration");
+              window.location.href = "/stationpreregisteration";
             }}
           />
 
-          <StyledTreeItem nodeId="3" labelText="구매자" labelIcon={Label}>
+          <StyledTreeItem nodeId="22" labelText="구매자" labelIcon={Label}>
             <StyledTreeItem
-              nodeId="1"
+              nodeId="2201"
               labelText="구매자 신청서 입금 확인"
               labelIcon={MailIcon}
               onClick={() => {
-                props.history.push("/");
+                window.location.href = "/";
               }}
             />
             <StyledTreeItem
-              nodeId="2"
-              labelText="구매자에게 스테이션 할당"
+              nodeId="2202"
+              labelText="구매자에게 수동 스테이션 할당"
               labelIcon={DeleteIcon}
               onClick={() => {
-                props.history.push("/station");
+                window.location.href = "/buyerapplicationmaual";
               }}
             />
           </StyledTreeItem>
-          <StyledTreeItem nodeId="3" labelText="Categories" labelIcon={Label}>
+          <StyledTreeItem nodeId="33" labelText="세일즈" labelIcon={Label}>
+            <StyledTreeItem
+              nodeId="3301"
+              labelText="세일즈 영업 신청서"
+              labelIcon={SupervisorAccountIcon}
+              // labelInfo="90"
+              color="#1a73e8"
+              bgColor="#e8f0fe"
+              onClick={() => {
+                window.location.href = "/salesapplications";
+              }}
+            />
             <StyledTreeItem
               nodeId="5"
               labelText="보내야할 스테이션"
@@ -178,7 +190,7 @@ function LeftMenu(props) {
               color="#1a73e8"
               bgColor="#e8f0fe"
               onClick={() => {
-                props.history.push("/stationneedtosend");
+                window.location.href = "/stationneedtosend";
               }}
             />
             <StyledTreeItem
@@ -211,7 +223,7 @@ function LeftMenu(props) {
             labelText="세일즈 신청서"
             labelIcon={Label}
             onClick={() => {
-              props.history.push("/salesapplications");
+              window.location.href = "/salesapplications";
             }}
           />
         </TreeView>
