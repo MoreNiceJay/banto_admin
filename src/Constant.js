@@ -10,8 +10,7 @@ export const dbCollection = Object.freeze({
   station: "Stations",
   franchise: "Franchises",
   buyerApplication: "BuyerApplications",
-  salesApplication: "SalesApplications",
-  storeApplication: "StoreApplications"
+  contract: "Contracts"
 });
 
 export const role = Object.freeze({

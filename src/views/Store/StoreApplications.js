@@ -66,8 +66,7 @@ export default function BuyerApplications(props) {
       .collection(constant.dbCollection.contract)
       .where("status", "==", constant.applicationStatus.waiting)
       .where("approvedBy", "==", "")
-      .where("contractType", "==", "SALES");
-
+      .where("contractType", "==", "FRANCHISE");
     const qs = await ref.get();
     const result = qs.docs.map((doc) => {
       console.log(doc.data());
@@ -83,7 +82,7 @@ export default function BuyerApplications(props) {
         .collection(constant.dbCollection.contract)
         .where("status", "==", constant.applicationStatus.waiting)
         .where("approvedBy", "==", "")
-        .where("contractType", "==", "SALES");
+        .where("contractType", "==", "FRANCHISE");
       const qs = await ref.get();
       const result = qs.docs.map((doc) => {
         console.log(doc.data());
@@ -162,6 +161,11 @@ export default function BuyerApplications(props) {
                 <span>{application && application.id}</span>
                 <span>가맹점: {application && application.data.storeName}</span>
                 <span>
+                  스테이션 신청 방법:{" "}
+                  {application && application.data.stationMethod}
+                </span>
+
+                <span>
                   가맹점 주소:{" "}
                   {application && application.data.storeMainAddress}
                 </span>
@@ -200,18 +204,96 @@ export default function BuyerApplications(props) {
                       onClick={async () => {
                         try {
                           const today = String(new Date());
+                          console.log("applicationssssss", application);
 
-                          // 컨트렉트 업데이트
-                          //어프르부
-                          //스테터스
-                          //니드투센드
+                          //스테이션 업데이트 시키기
+                          //만약 스테이션이 들어갔으면.
+                          if (application.data.stationMethod === "banto") {
+                            //스테이션 할당
+                            let ref = db
+                              .collection(constant.dbCollection.station)
+                              .where("salesMethod", "==", "banto")
+                              .where("salesPortion", ">=", 21)
+                              .where("contractDoc", "==", "")
+                              .where("bReserved", "==", false)
+                              .where(
+                                "status",
+                                "==",
+                                constant.applicationStatus.approved
+                              );
+
+                            const qs = await ref.get();
+                            const result = qs.docs.map((doc) => {
+                              console.log(doc.data());
+                              console.log(doc.id);
+                              return { id: doc.id, data: doc.data() };
+                            });
+                            console.log("리저트", result);
+                            if (result.length === 0) {
+                              alert("할당될 스테이션이 없습니다");
+                              return;
+                            }
+                            // .orderBy("createdBy", "ASC")
+                            result.sort(common.date_ascending);
+                            console.log("sorted", result);
+                            const firstResult = result[0];
+                            console.log("station first result", firstResult);
+                            await db
+                              .collection(constant.dbCollection.contract)
+                              .doc(application.id)
+                              .update({
+                                approvedBy: today,
+                                status: constant.applicationStatus.approved,
+                                bNeedToSend: true,
+                                stationDoc: firstResult.id
+                              });
+                            //할당완료
+
+                            //여기에서 프렌차이즈로 업데이트
+                            //컨트렉트닥 추가
+                            //스테이션닥 추가
+                            //if banto 해서 정리를 하자
+
+                            await db
+                              .collection(constant.dbCollection.franchise)
+                              .doc(application.data.franchiseDoc)
+                              .update({
+                                contractDocs: firebase.firestore.FieldValue.arrayUnion(
+                                  {
+                                    [application.data.stationId]: application.id
+                                  }
+                                ),
+                                stationDocs: firebase.firestore.FieldValue.arrayUnion(
+                                  {
+                                    [application.data.stationId]:
+                                      application.data.stationDoc
+                                  }
+                                )
+                              });
+
+                            await db
+                              .collection(constant.dbCollection.station)
+                              .doc(result[0].id)
+                              .update({
+                                contractDoc: application.id,
+                                bReserved: true,
+                                status: constant.applicationStatus.approved
+                              });
+
+                            await reloadApplications();
+                            alert("완료");
+
+                            return;
+                          } // method == banto ends
+
                           await db
                             .collection(constant.dbCollection.contract)
                             .doc(application.id)
                             .update({
                               approvedBy: today,
                               status: constant.applicationStatus.approved,
-                              bNeedToSend: true
+                              bNeedToSend: true,
+                              reservedBy: today
                             });
 
                           //여기에서 프렌차이즈로 업데이트
@@ -254,6 +336,7 @@ export default function BuyerApplications(props) {
                           await reloadApplications();
                           alert("완료");
                         } catch (e) {
+                          console.log(e);
                           alert(e);
                         }
                       }}
@@ -269,8 +352,10 @@ export default function BuyerApplications(props) {
                         color="secondary"
                         onClick={async () => {
                           try {
+                            console.log("applicationssssss", application);
+
                             await db
-                              .collection(constant.dbCollection.contract)
+                              .collection(constant.application.storeApplication)
                               .doc(application.id)
                               .update({
                                 status: constant.applicationStatus.rejected,

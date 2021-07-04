@@ -13,6 +13,37 @@ export function shuffleId(count) {
   }
   return result;
 }
+export function leadingZeros(n, digits) {
+  var zero = "";
+  n = n.toString();
+
+  if (n.length < digits) {
+    for (let i = 0; i < digits - n.length; i++) zero += "0";
+  }
+  return zero + n;
+}
+
+export function getTimeStamp() {
+  var d = new Date();
+  var s =
+    leadingZeros(d.getFullYear(), 4) +
+    "-" +
+    leadingZeros(d.getMonth() + 1, 2) +
+    "-" +
+    leadingZeros(d.getDate(), 2) +
+    " " +
+    leadingZeros(d.getHours(), 2) +
+    ":" +
+    leadingZeros(d.getMinutes(), 2) +
+    ":" +
+    leadingZeros(d.getSeconds(), 2);
+
+  return s;
+}
+
+export function dateuid(count) {
+  return getTimeStamp() + "_" + shuffleId(5);
+}
 
 export async function findStation(stationId) {
   try {
@@ -62,4 +93,16 @@ export async function getPrestations() {
     preStations.push({ id: doc.id, data: doc.data() });
   });
   return preStations;
+}
+
+export function date_ascending(a, b) {
+  var dateA = new Date(a["createdBy"]).getTime();
+  var dateB = new Date(b["createdBy"]).getTime();
+  return dateA > dateB ? 1 : -1;
+}
+
+export function date_descending(a, b) {
+  var dateA = new Date(a["createdBy"]).getTime();
+  var dateB = new Date(b["createdBy"]).getTime();
+  return dateA < dateB ? 1 : -1;
 }

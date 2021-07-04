@@ -66,7 +66,8 @@ export default function BuyerApplications(props) {
   const reloadApplications = async () => {
     const ref = db
       .collection(constant.application.buyerApplication)
-      .where("status", "!=", constant.applicationStatus.approved);
+      .where("status", "==", constant.applicationStatus.waiting)
+      .where("bReserved", "==", false);
     const qs = await ref.get();
     const result = qs.docs.map((doc) => {
       console.log(doc.data());
@@ -82,7 +83,7 @@ export default function BuyerApplications(props) {
 
       const ref = db
         .collection(constant.application.buyerApplication)
-        .where("status", "!=", constant.applicationStatus.approved);
+        .where("status", "==", constant.applicationStatus.waiting);
       const qs = await ref.get();
       const result = qs.docs.map((doc) => {
         console.log(doc.data());
@@ -246,11 +247,16 @@ export default function BuyerApplications(props) {
                           let popedStation = preStations.pop();
                           console.log(popedStation.id);
                           modifyData.stationId = popedStation.data.stationId;
+                          modifyData.applicationId = application.id;
+
                           await db
                             .collection("Prestations")
                             .doc(popedStation.id)
                             .delete();
-                          await db.collection("Stations").doc().set(modifyData);
+                          await db
+                            .collection("Stations")
+                            .doc(common.dateuid())
+                            .set(modifyData);
                         }
 
                         await reloadApplications();

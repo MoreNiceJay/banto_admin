@@ -138,7 +138,7 @@ function LeftMenu(props) {
       >
         <TreeView
           className={classes.root}
-          defaultExpanded={["22", "33"]}
+          defaultExpanded={["22", "33", "44"]}
           defaultCollapseIcon={<ArrowDropDownIcon />}
           defaultExpandIcon={<ArrowRightIcon />}
           defaultEndIcon={<div style={{ width: 24 }} />}
@@ -148,7 +148,7 @@ function LeftMenu(props) {
             labelText="반토 예비 스테이션 등록"
             labelIcon={MailIcon}
             onClick={() => {
-              window.location.href = "/stationpreregisteration";
+              props.history.push("/stationpreregisteration");
             }}
           />
 
@@ -158,7 +158,7 @@ function LeftMenu(props) {
               labelText="구매자 신청서 입금 확인"
               labelIcon={MailIcon}
               onClick={() => {
-                window.location.href = "/";
+                props.history.push("/");
               }}
             />
             <StyledTreeItem
@@ -166,7 +166,15 @@ function LeftMenu(props) {
               labelText="구매자에게 수동 스테이션 할당"
               labelIcon={DeleteIcon}
               onClick={() => {
-                window.location.href = "/buyerapplicationmaual";
+                props.history.push("/buyerapplicationmaual");
+              }}
+            />
+            <StyledTreeItem
+              nodeId="2203"
+              labelText="구매자 설치 대기리스트"
+              labelIcon={DeleteIcon}
+              onClick={() => {
+                props.history.push("/buyerinstallationwatingList");
               }}
             />
           </StyledTreeItem>
@@ -179,7 +187,7 @@ function LeftMenu(props) {
               color="#1a73e8"
               bgColor="#e8f0fe"
               onClick={() => {
-                window.location.href = "/salesapplications";
+                props.history.push("/salesapplications");
               }}
             />
             <StyledTreeItem
@@ -190,7 +198,7 @@ function LeftMenu(props) {
               color="#1a73e8"
               bgColor="#e8f0fe"
               onClick={() => {
-                window.location.href = "/stationneedtosend";
+                props.history.push("/stationneedtosend");
               }}
             />
             <StyledTreeItem
@@ -201,31 +209,39 @@ function LeftMenu(props) {
               color="#e3742f"
               bgColor="#fcefe3"
             />
+          </StyledTreeItem>
+          <StyledTreeItem nodeId="44" labelText="가맹점" labelIcon={Label}>
             <StyledTreeItem
-              nodeId="7"
-              labelText="Forums"
-              labelIcon={ForumIcon}
-              labelInfo="3,566"
-              color="#a250f5"
-              bgColor="#f3e8fd"
+              nodeId="4401"
+              labelText="가맹점 신청서"
+              labelIcon={SupervisorAccountIcon}
+              // labelInfo="90"
+              color="#1a73e8"
+              bgColor="#e8f0fe"
+              onClick={() => {
+                props.history.push("/storeapplications");
+              }}
             />
             <StyledTreeItem
-              nodeId="8"
-              labelText="Promotions"
-              labelIcon={LocalOfferIcon}
-              labelInfo="733"
-              color="#3c8039"
-              bgColor="#e6f4ea"
+              nodeId="4402"
+              labelText="보내야할 스테이션"
+              labelIcon={SupervisorAccountIcon}
+              // labelInfo="90"
+              color="#1a73e8"
+              bgColor="#e8f0fe"
+              onClick={() => {
+                props.history.push("/stationneedtosend");
+              }}
+            />
+            <StyledTreeItem
+              nodeId="6"
+              labelText="Updates"
+              labelIcon={InfoIcon}
+              labelInfo="2,294"
+              color="#e3742f"
+              bgColor="#fcefe3"
             />
           </StyledTreeItem>
-          <StyledTreeItem
-            nodeId="4"
-            labelText="세일즈 신청서"
-            labelIcon={Label}
-            onClick={() => {
-              window.location.href = "/salesapplications";
-            }}
-          />
         </TreeView>
         {props.children}
       </div>
